@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- الوسوم الأساسية للسيو (SEO) لظهور الموقع في محركات البحث -->
+    <title>أدواتي - أسرع موقع لتحميل الفيديوهات وضغط الصور وتحويل PDF مجاناً</title>
+    <meta name="description" content="أداة مجانية وسريعة لتحميل فيديوهات وصوتيات يوتيوب بجودة عالية MP4 و MP3، ضغط الصور بدون تقليل الجودة، وتحويل الصور إلى PDF بكل سهولة.">
+    <meta name="keywords" content="تحميل فيديو يوتيوب, تنزيل اغاني mp3, ضغط الصور, تحويل صور الى pdf, تنزيل فيديو بجودة عالية">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph لظهور شكل جذاب عند مشاركة رابط الموقع على فيسبوك وواتساب -->
+    <meta property="og:title" content="أدواتي - أدوات مجانية شاملة لتحميل الفيديوهات وتعديل الصور">
+    <meta property="og:description" content="حمل فيديوهاتك المفضلة وضغط صورك بضغطة زر واحدة مجاناً.">
+    <meta property="og:type" content="website">
+
+    <!-- المكتبات البرمجية والخطوط -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f4f7f6; color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        header { text-align: center; margin-bottom: 30px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .tab-btn { padding: 12px 20px; border: none; background-color: #e0e0e0; cursor: pointer; font-weight: bold; border-radius: 8px; transition: 0.3s; }
+        .tab-btn.active { background-color: #3498db; color: white; }
+        .tool-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 550px; display: none; text-align: center; }
+        .tool-card.active { display: block; }
+        .upload-area { border: 2px dashed #3498db; padding: 20px; border-radius: 8px; margin-bottom: 20px; background-color: #f9fbfd; cursor: pointer; }
+        input[type="file"], input[type="text"] { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; }
+        input[type="file"] { display: none; }
+        .action-btn { background-color: #2ecc71; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+        .action-btn:hover { background-color: #27ae60; }
+        .status { margin-top: 15px; text-align: center; }
+        .dl-btns { display: flex; gap: 10px; margin-top: 15px; justify-content: center; flex-wrap: wrap; }
+        .dl-btn-item { padding: 12px 20px; border-radius: 6px; text-decoration: none; color: white; font-weight: bold; flex: 1; text-align: center; min-width: 200px; }
+        .btn-video { background-color: #3498db; }
+        .btn-audio { background-color: #e67e22; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>منصة الأدوات الشاملة</h1>
+        <p>تحميل فيديوهات وصوتيات، ضغط صور، وتحويل PDF</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('downloader')">تحميل فيديو / صوت</button>
+        <button class="tab-btn" onclick="switchTab('compressor')">ضغط الصور</button>
+        <button class="tab-btn" onclick="switchTab('pdf')">تحويل إلى PDF</button>
+    </div>
+
+    <!-- قسم تحميل الفيديوهات -->
+    <div id="downloader" class="tool-card active">
+        <h2>تحميل فيديو أو صوت</h2>
+        <br>
+        <input type="text" id="videoUrl" placeholder="ضع رابط الفيديو هنا...">
+        <button class="action-btn" onclick="fetchVideo()">فحص وجلب الفيديو</button>
+        <div id="downloadStatus" class="status"></div>
+    </div>
+
+    <!-- أداة ضغط الصور -->
+    <div id="compressor" class="tool-card">
+        <h2>أداة ضغط الصور</h2>
+        <br>
+        <div class="upload-area" onclick="document.getElementById('imgInput').click()">
+            <label style="color: #3498db; cursor: pointer;">اضغط هنا لاختيار صورة</label>
+            <input type="file" id="imgInput" accept="image/*">
+        </div>
+        <button class="action-btn" onclick="compressImage()">ضغط وتنزيل الصورة</button>
+        <div id="compressStatus" class="status"></div>
+    </div>
+
+    <!-- أداة تحويل الصور إلى PDF -->
+    <div id="pdf" class="tool-card">
+        <h2>تحويل الصور إلى PDF</h2>
+        <br>
+        <div class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <label style="color: #3498db; cursor: pointer;">اختر مجموعة صور</label>
+            <input type="file" id="pdfInput" accept="image/*" multiple>
+        </div>
+        <button class="action-btn" onclick="convertToPDF()">تحويل وتنزيل PDF</button>
+        <div id="pdfStatus" class="status"></div>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function fetchVideo() {
+            const url = document.getElementById('videoUrl').value;
+            const status = document.getElementById('downloadStatus');
+
+            if (!url) {
+                status.innerText = "يرجى إدخال الرابط أولاً!";
+                status.style.color = "red";
+                return;
+            }
+
+            status.innerHTML = "<p>جاري فحص الرابط...</p>";
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const encodedUrl = encodeURIComponent(data.url);
+                    status.innerHTML = `
+                        <h4 style="margin-bottom:15px;">${data.title}</h4>
+                        <p style="margin-bottom:10px; font-size:13px; color:#666;">اختر النوع للانتقال لصفحة التحميل:</p>
+                        <div class="dl-btns">
+                            <a href="http://127.0.0.1:5000/download-page?url=${encodedUrl}&type=video" target="_blank" class="dl-btn-item btn-video">صفحة تحميل فيديو MP4</a>
+                            <a href="http://127.0.0.1:5000/download-page?url=${encodedUrl}&type=audio" target="_blank" class="dl-btn-item btn-audio">صفحة تحميل صوت MP3</a>
+                        </div>
+                    `;
+                } else {
+                    status.innerText = data.error || "تعذر جلب الفيديو.";
+                    status.style.color = "red";
+                }
+            } catch (err) {
+                status.innerText = "تأكد من تشغيل سيرفر Python!";
+                status.style.color = "red";
+            }
+        }
+
+        async function compressImage() {
+            const file = document.getElementById('imgInput').files[0];
+            const status = document.getElementById('compressStatus');
+            if (!file) return status.innerText = "اختر صورة أولاً!";
+            
+            status.innerText = "جاري الضغط...";
+            const compressed = await imageCompression(file, { maxSizeMB: 1, useWebWorker: true });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(compressed);
+            link.download = `compressed_${file.name}`;
+            link.click();
+            status.innerText = "تم التحميل بنجاح!";
+        }
+
+        async function convertToPDF() {
+            const files = document.getElementById('pdfInput').files;
+            const status = document.getElementById('pdfStatus');
+            if (files.length === 0) return status.innerText = "اختر صوراً أولاً!";
+
+            status.innerText = "جاري التحويل...";
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            for (let i = 0; i < files.length; i++) {
+                const imgData = await new Promise(r => {
+                    const reader = new FileReader();
+                    reader.onload = () => r(reader.result);
+                    reader.readAsDataURL(files[i]);
+                });
+                if (i > 0) doc.addPage();
+                doc.addImage(imgData, 'JPEG', 10, 10, 190, 0);
+            }
+            doc.save('converted.pdf');
+            status.innerText = "تم تحميل ملف PDF بنجاح!";
+        }
+    </script>
+</body>
+</html>
